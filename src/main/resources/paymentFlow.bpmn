@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn2:definitions
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL"
+	xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+	xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+	xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+	xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+	id="paymentNotice"
+	targetNamespace="http://camunda.org/examples"
+	exporter="Camunda Modeler"
+	exporterVersion="4.7.0"
+	xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
+	<bpmn2:process id="payment" isExecutable="true" camunda:historyTimeToLive="P180D">
+		
+		<!-- ******************************************************************************** -->
+		<!-- START                                                                            -->
+		<!-- ******************************************************************************** -->
+		<bpmn2:startEvent id="start">
+			<bpmn2:outgoing>start___access_token</bpmn2:outgoing>
+		</bpmn2:startEvent>
+		
+		<bpmn2:sequenceFlow id="start___access_token" sourceRef="start" targetRef="access_token" />
+		
+		<!-- ******************************************************************************** -->
+		<!-- GET ACCESS TOKEN                                                                 -->
+		<!-- ******************************************************************************** -->
+		<bpmn2:serviceTask id="access_token">
+			<bpmn2:extensionElements>
+				<camunda:connector>
+					<camunda:inputOutput>
+						<camunda:inputParameter name="url">${authUrl}</camunda:inputParameter>
+						<camunda:inputParameter name="method">POST</camunda:inputParameter>
+						<camunda:inputParameter name="headers">
+							<camunda:map>
+								<camunda:entry key="RequestId">${requestId}</camunda:entry>
+								<camunda:entry key="AcquirerId">${acquirerId}</camunda:entry>
+								<camunda:entry key="Channel">${channel}</camunda:entry>
+								<camunda:entry key="TerminalId">${terminalId}</camunda:entry>
+								<camunda:entry key="Content-Type">application/x-www-form-urlencoded</camunda:entry>
+								<camunda:entry key="Accept">application/json</camunda:entry>
+							</camunda:map>
+						</camunda:inputParameter>
+						<camunda:inputParameter name="payload">client_secret=${clientSecret}&amp;client_id=${clientId}&amp;grant_type=client_credentials</camunda:inputParameter>
+						<camunda:outputParameter name="accessToken">
+							<camunda:script scriptFormat="Javascript">JSON.parse(response).access_token</camunda:script>
+						</camunda:outputParameter>
+            			<camunda:outputParameter name="statusCode">#{statusCode}</camunda:outputParameter>
+					</camunda:inputOutput>
+					<camunda:connectorId>http-connector</camunda:connectorId>
+				</camunda:connector>
+			</bpmn2:extensionElements>
+			<bpmn2:incoming>start___access_token</bpmn2:incoming>
+			<bpmn2:outgoing>access_token___check_access_token</bpmn2:outgoing>
+		</bpmn2:serviceTask>
+		
+		<bpmn2:sequenceFlow id="access_token___check_access_token" sourceRef="access_token" targetRef="check_access_token" />
+		
+		<!-- ******************************************************************************** -->
+		<!-- CHECK GET ACCESS TOKEN                                                           -->
+		<!-- ******************************************************************************** -->
+		<bpmn2:exclusiveGateway id="check_access_token">
+			<bpmn2:incoming>access_token___check_access_token</bpmn2:incoming>
+			<bpmn2:outgoing>check_access_token___verify</bpmn2:outgoing>
+			<bpmn2:outgoing>check_access_token___error</bpmn2:outgoing>
+		</bpmn2:exclusiveGateway>
+		
+		<bpmn2:sequenceFlow id="check_access_token___verify" sourceRef="check_access_token" targetRef="verify">
+			<bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${ statusCode == 200 }</bpmn2:conditionExpression>
+		</bpmn2:sequenceFlow>
+		
+		<bpmn2:sequenceFlow id="check_access_token___error" sourceRef="check_access_token" targetRef="error">
+			<bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${ statusCode != 200 }</bpmn2:conditionExpression>
+		</bpmn2:sequenceFlow>
+		
+		<!-- ******************************************************************************** -->
+		<!-- VERIFY PAYMENT NOTICE                                                            -->
+		<!-- ******************************************************************************** -->
+		<bpmn2:serviceTask id="verify">
+			<bpmn2:extensionElements>
+				<camunda:connector>
+					<camunda:inputOutput>
+						<camunda:inputParameter name="url">${paymentNoticeUrl}/paymentNotices/${paTaxCode}/${noticeNumber}</camunda:inputParameter>
+						<camunda:inputParameter name="method">GET</camunda:inputParameter>
+						<camunda:inputParameter name="headers">
+							<camunda:map>
+								<camunda:entry key="RequestId">${requestId}</camunda:entry>
+								<camunda:entry key="AcquirerId">${acquirerId}</camunda:entry>
+								<camunda:entry key="Channel">${channel}</camunda:entry>
+								<camunda:entry key="TerminalId">${terminalId}</camunda:entry>
+								<camunda:entry key="Authorization">Bearer ${accessToken}</camunda:entry>
+								<camunda:entry key="Accept">application/json</camunda:entry>
+							</camunda:map>
+						</camunda:inputParameter>
+						<camunda:outputParameter name="verifyResponse">
+							<camunda:script scriptFormat="Javascript">JSON.parse(response)</camunda:script>
+						</camunda:outputParameter>
+            			<camunda:outputParameter name="statusCode">#{statusCode}</camunda:outputParameter>
+					</camunda:inputOutput>
+					<camunda:connectorId>http-connector</camunda:connectorId>
+				</camunda:connector>
+			</bpmn2:extensionElements>
+			<bpmn2:incoming>check_access_token___verify</bpmn2:incoming>
+			<bpmn2:outgoing>verify___check_verify</bpmn2:outgoing>
+		</bpmn2:serviceTask>
+		
+		<bpmn2:sequenceFlow id="verify___check_verify" sourceRef="verify" targetRef="check_verify" />
+		
+		<!-- ******************************************************************************** -->
+		<!-- CHECK VERIFY                                                                     -->
+		<!-- ******************************************************************************** -->
+		<bpmn2:exclusiveGateway id="check_verify">
+			<bpmn2:incoming>verify___check_verify</bpmn2:incoming>
+			<bpmn2:outgoing>check_verify___success</bpmn2:outgoing>
+			<bpmn2:outgoing>check_verify___error</bpmn2:outgoing>
+		</bpmn2:exclusiveGateway>
+		
+		<bpmn2:sequenceFlow id="check_verify___success" sourceRef="check_verify" targetRef="success">
+			<bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${ statusCode == 200 &amp;&amp; verifyResponse.outcome != null &amp;&amp; verifyResponse.outcome == "OK" }</bpmn2:conditionExpression>
+		</bpmn2:sequenceFlow>
+		
+		<bpmn2:sequenceFlow id="check_verify___error" sourceRef="check_verify" targetRef="error">
+			<bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${ statusCode != 200 || verifyResponse.outcome == null || verifyResponse.outcome != "OK" }</bpmn2:conditionExpression>
+		</bpmn2:sequenceFlow>
+
+		<!-- ******************************************************************************** -->
+		<!-- SUCCESS                                                                          -->
+		<!-- ******************************************************************************** -->
+		<bpmn2:serviceTask id="success" camunda:delegateExpression="${successLog}">
+			<bpmn2:incoming>check_verify___success</bpmn2:incoming>
+			<bpmn2:outgoing>errort___end</bpmn2:outgoing>
+		</bpmn2:serviceTask>
+		
+		<bpmn2:sequenceFlow id="success___end" sourceRef="success" targetRef="end" />
+		
+		<!-- ******************************************************************************** -->
+		<!-- ERROR                                                                            -->
+		<!-- ******************************************************************************** -->
+		<bpmn2:serviceTask id="error" camunda:delegateExpression="${errorLog}">
+			<bpmn2:incoming>check_access_token___error</bpmn2:incoming>
+			<bpmn2:incoming>check_verify___error</bpmn2:incoming>
+			<bpmn2:outgoing>errort___end</bpmn2:outgoing>
+		</bpmn2:serviceTask>
+		
+		<bpmn2:sequenceFlow id="error___end" sourceRef="error" targetRef="end" />
+		
+		<!-- ******************************************************************************** -->
+		<!-- END                                                                              -->
+		<!-- ******************************************************************************** -->
+		<bpmn2:endEvent id="end">
+			<bpmn2:incoming>success___end</bpmn2:incoming>
+			<bpmn2:incoming>error___end</bpmn2:incoming>
+		</bpmn2:endEvent>
+	</bpmn2:process>
+</bpmn2:definitions>
