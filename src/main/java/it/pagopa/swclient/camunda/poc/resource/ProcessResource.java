@@ -1,7 +1,5 @@
 package it.pagopa.swclient.camunda.poc.resource;
 
-import org.camunda.bpm.engine.RuntimeService;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -12,10 +10,19 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-@Path("/payment")
+import org.camunda.bpm.engine.RuntimeService;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+@Path("/process")
 public class ProcessResource {
 	@Inject
 	RuntimeService runtimeService;
+
+	@ConfigProperty(name = "client.id")
+	String clientId;
+
+	@ConfigProperty(name = "client.secret")
+	String clientSecret;
 
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
@@ -26,14 +33,13 @@ public class ProcessResource {
 		variables.put("acquirerId", "06789");
 		variables.put("terminalId", "64874412");
 		variables.put("channel", "ATM");
-		variables.put("clientId", "83c0b10f-b398-4cc8-b356-a3e0f0291679");
-		variables.put("clientSecret", "bea0fc26-fe22-4b26-8230-ef7d4461acf9");
-		
-		
+		variables.put("clientId", clientId);
+		variables.put("clientSecret", clientSecret);
+
 		variables.put("paymentNoticeUrl", "https://mil-d-apim.azure-api.net/mil-payment-notice");
 		variables.put("paTaxCode", "00000000201");
 		variables.put("noticeNumber", "123456789012345678");
-		
+
 		String processInstanceId = runtimeService.startProcessInstanceByKey("payment", variables).getId();
 		return "Process instance with id " + processInstanceId + " started!";
 	}

@@ -14,11 +14,11 @@ import org.camunda.spin.plugin.impl.SpinProcessEnginePlugin;
 @ApplicationScoped
 public class EngineConfigurator extends QuarkusProcessEngineConfiguration {
 	public EngineConfigurator() {
-	    List<ProcessEnginePlugin> plugins = new ArrayList<>();
-	    plugins.add(new ConnectProcessEnginePlugin());
-	    plugins.add(new SpinProcessEnginePlugin());
-	    setProcessEnginePlugins(plugins);
-	    
-	    setScriptEngineResolver(new ScriptEngineResolver(new ScriptEngineManager()));
-	  }
+		List<ProcessEnginePlugin> plugins = new ArrayList<>();
+		plugins.add(new ConnectProcessEnginePlugin());
+		plugins.add(new SpinProcessEnginePlugin());
+		setProcessEnginePlugins(plugins);
+
+		setScriptEngineResolver(new ScriptEngineResolver(new ScriptEngineManager()));
+	}
 }

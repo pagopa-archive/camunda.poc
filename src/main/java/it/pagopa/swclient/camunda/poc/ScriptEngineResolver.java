@@ -15,12 +15,12 @@ public class ScriptEngineResolver extends DefaultScriptEngineResolver {
 	}
 
 	@Override
-    protected ScriptEngine getJavaScriptScriptEngine(String language) {
-        Engine graalEngine = Engine.newBuilder()
-                .allowExperimentalOptions(true)
-                .option("engine.WarnInterpreterOnly", "false")
-                .build();
-
-        return GraalJSScriptEngine.create(graalEngine, Context.newBuilder("js"));
-    }
+	protected ScriptEngine getJavaScriptScriptEngine(String language) {
+		return GraalJSScriptEngine.create(
+			Engine.newBuilder()
+				.allowExperimentalOptions(true)
+				.option("engine.WarnInterpreterOnly", "false")
+				.build(),
+			Context.newBuilder("js"));
+	}
 }
