@@ -11,6 +11,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @Path("/process")
@@ -24,9 +25,10 @@ public class ProcessResource {
 	@ConfigProperty(name = "client.secret")
 	String clientSecret;
 
+	@Path("/one")
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
-	public String payment() {
+	public String one() {
 		Map<String, Object> variables = new HashMap<>();
 		variables.put("authUrl", "https://mil-d-apim.azure-api.net/mil-auth/token");
 		variables.put("requestId", UUID.randomUUID().toString());
@@ -40,7 +42,29 @@ public class ProcessResource {
 		variables.put("paTaxCode", "00000000201");
 		variables.put("noticeNumber", "123456789012345678");
 
-		String processInstanceId = runtimeService.startProcessInstanceByKey("payment", variables).getId();
+		ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("payment", variables);
+		String processInstanceId = processInstance.getId();
+
+		return "Process instance with id " + processInstanceId + " started!";
+	}
+	
+	@Path("/two")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String two() {
+		ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("listenersTest");
+		String processInstanceId = processInstance.getId();
+
+		return "Process instance with id " + processInstanceId + " started!";
+	}
+	
+	@Path("/three")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String three() {
+		ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("Process_10q8fbq");
+		String processInstanceId = processInstance.getId();
+
 		return "Process instance with id " + processInstanceId + " started!";
 	}
 }

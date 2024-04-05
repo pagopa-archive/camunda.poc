@@ -13,7 +13,7 @@ import io.quarkus.logging.Log;
 public class SuccessLog implements JavaDelegate {
 	@Override
 	public void execute(DelegateExecution execution) {
-		Log.info("\n\nSUCCESS");
+		Log.info(">>> SUCCESS");
 		execution.getVariables().forEach((k, v) -> Log.info(k + " = " + v + " -- v class = " + (v != null ? v.getClass() : "null")));
 	}
 }

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions
+	xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+	xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+	id="TestWithListeners"
+	targetNamespace="http://bpmn.io/schema/bpmn">
+	
+	<bpmn:process id="listenersTest" isExecutable="true">
+		
+		<bpmn:startEvent id="__START__">
+			<bpmn:outgoing>__FROM_START__</bpmn:outgoing>
+		</bpmn:startEvent>
+
+		
+		<bpmn:sequenceFlow id="__FROM_START__" sourceRef="__START__" targetRef="USER_TASK_01" />
+
+		
+		<bpmn:userTask id="USER_TASK_01" name="USER_TASK" camunda:formKey="FORM_KEY_01">
+			<bpmn:extensionElements>
+				<camunda:taskListener
+					class="it.pagopa.swclient.camunda.poc.listener.OnCompleteTaskListener"
+					event="complete"
+					id="TASK_LISTENER_01" />
+				
+				<camunda:executionListener
+					class="it.pagopa.swclient.camunda.poc.listener.OnStartExecutionListener"
+					event="start" />
+			</bpmn:extensionElements>
+			
+			<bpmn:incoming>__FROM_START__</bpmn:incoming>
+			<bpmn:outgoing>__FROM_USER_TASK_01__</bpmn:outgoing>
+		</bpmn:userTask>
+
+		
+		<bpmn:sequenceFlow id="__FROM_USER_TASK_01__" sourceRef="USER_TASK_01" targetRef="__END__" />
+
+		
+		<bpmn:endEvent id="__END__">
+			<bpmn:incoming>__FROM_USER_TASK_01__</bpmn:incoming>
+		</bpmn:endEvent>
+		
+	</bpmn:process>
+</bpmn:definitions>
