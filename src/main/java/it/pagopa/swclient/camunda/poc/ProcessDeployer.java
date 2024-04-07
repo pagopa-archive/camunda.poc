@@ -1,8 +1,8 @@
 package it.pagopa.swclient.camunda.poc;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.quarkus.engine.extension.event.CamundaEngineStartupEvent;

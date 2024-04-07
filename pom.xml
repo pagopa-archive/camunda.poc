@@ -14,14 +14,11 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
 		<quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-		<quarkus.platform.version>2.16.11.Final</quarkus.platform.version>
-		<camunda.version>7.19.0</camunda.version>
-		<!--
-		<quarkus.platform.version>3.2.6.Final</quarkus.platform.version>
-		<camunda.version>7.20.0-alpha5</camunda.version>
-		-->
+		<quarkus.platform.version>3.2.11.Final</quarkus.platform.version>
+		<camunda.version>7.20.0</camunda.version>
 		<skipITs>true</skipITs>
 		<surefire-plugin.version>3.1.2</surefire-plugin.version>
+		<graalvm.version>23.0.1</graalvm.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -42,6 +39,7 @@
 		</dependencies>
 	</dependencyManagement>
 	<dependencies>
+		<!-- Quarkus -->
 		<dependency>
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-resteasy-reactive-jackson</artifactId>
@@ -54,17 +52,16 @@
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-resteasy-reactive</artifactId>
 		</dependency>
-		
+		<!-- H2 Driver for Camunda -->
 		<dependency>
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-jdbc-h2</artifactId>
 		</dependency>
-		
+		<!-- Camunda -->
 		<dependency>
 			<groupId>org.camunda.bpm.quarkus</groupId>
 			<artifactId>camunda-bpm-quarkus-engine</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.camunda.bpm</groupId>
 			<artifactId>camunda-engine-plugin-connect</artifactId>
@@ -81,18 +78,19 @@
 			<groupId>org.camunda.spin</groupId>
 			<artifactId>camunda-spin-dataformat-json-jackson</artifactId>
 		</dependency>
-
+		<!-- ScriptEngine is no longer included in GraalVM by default. -->
 		<dependency>
 			<groupId>org.graalvm.js</groupId>
 			<artifactId>js-scriptengine</artifactId>
-			<version>22.3.0</version>
+			<version>${graalvm.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.graalvm.js</groupId>
 			<artifactId>js</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 
+		<!-- Test -->
 		<dependency>
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-junit5</artifactId>

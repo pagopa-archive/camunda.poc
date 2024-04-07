@@ -2,7 +2,7 @@ package it.pagopa.swclient.camunda.poc;
 
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 import javax.script.ScriptEngineManager;
 
 import org.camunda.bpm.engine.impl.cfg.ProcessEnginePlugin;
@@ -26,7 +26,8 @@ public class EngineConfigurator extends QuarkusProcessEngineConfiguration {
 		 */
 		plugins.add(new ConnectProcessEnginePlugin());
 		plugins.add(new SpinProcessEnginePlugin());
-		setScriptEngineResolver(new ScriptEngineResolver(new ScriptEngineManager()));
+		ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+		setScriptEngineResolver(new ScriptEngineResolver(scriptEngineManager));
 
 		/*
 		 * https://forum.camunda.io/t/create-execution-listener-in-spring-modified/1650/5
