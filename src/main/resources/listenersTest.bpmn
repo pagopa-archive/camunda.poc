@@ -5,7 +5,7 @@
 	id="TestWithListeners"
 	targetNamespace="http://bpmn.io/schema/bpmn">
 	
-	<bpmn:process id="listenersTest" isExecutable="true">
+	<bpmn:process id="listenersTest" isExecutable="true" camunda:historyTimeToLive="P180D">
 		
 		<bpmn:startEvent id="__START__">
 			<bpmn:outgoing>__FROM_START__</bpmn:outgoing>
